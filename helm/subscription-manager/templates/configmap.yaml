@@ -1,0 +1,52 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "subscription-manager.fullname" . }}-db-init
+  labels:
+    {{- include "subscription-manager.labels" . | nindent 4 }}
+data:
+  01-schema.sql: |
+    -- サブスクリプション管理データベーススキーマ
+
+    -- サブスクリプションテーブル
+    CREATE TABLE IF NOT EXISTS subscriptions (
+        id VARCHAR(50) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        service_name VARCHAR(255) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        currency VARCHAR(3) NOT NULL CHECK (currency IN ('JPY', 'USD')),
+        start_date DATE NOT NULL,
+        end_date DATE,
+        payment_cycle VARCHAR(10) NOT NULL CHECK (payment_cycle IN ('MONTHLY', 'YEARLY')),
+        exchange_rate DECIMAL(10,4),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- 為替レートテーブル
+    CREATE TABLE IF NOT EXISTS exchange_rates (
+        id VARCHAR(50) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        date DATE UNIQUE NOT NULL,
+        usd_to_jpy DECIMAL(10,4) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- 更新時刻を自動更新するトリガー
+    CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.updated_at = CURRENT_TIMESTAMP;
+        RETURN NEW;
+    END;
+    $$ language 'plpgsql';
+
+    CREATE TRIGGER update_subscriptions_updated_at 
+        BEFORE UPDATE ON subscriptions 
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+    -- インデックス
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_start_date ON subscriptions(start_date);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_end_date ON subscriptions(end_date);
+    CREATE INDEX IF NOT EXISTS idx_subscriptions_currency ON subscriptions(currency);
+    CREATE INDEX IF NOT EXISTS idx_exchange_rates_date ON exchange_rates(date);
+{{- end }}

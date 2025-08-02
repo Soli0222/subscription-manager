@@ -1,0 +1,66 @@
+replicaCount: 1
+
+image:
+  repository: subscription-manager
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: subscription-manager.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: subscription-manager-tls
+  #    hosts:
+  #      - subscription-manager.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# アプリケーション環境変数
+env:
+  POSTGRES_HOST: "subscription-manager-postgresql"
+  POSTGRES_PORT: "5432"
+  POSTGRES_SSL: "disable"
+  EXCHANGE_RATE_API_URL: "https://api.exchangerate-api.com/v4/latest/USD"
+
+# クレデンシャル設定（Secret リソースで管理）
+credentials:
+  # 外部Secretを使用する場合はtrueに設定
+  external: false
+  # 外部Secretの名前（external: trueの場合に使用）
+  externalName: ""
+  # 内部Secret用の値（external: falseの場合に使用）
+  postgresUser: "postgres"
+  postgresPassword: "secure_password_123"
+  postgresDb: "subscription_manager"
+
+# PostgreSQL設定
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

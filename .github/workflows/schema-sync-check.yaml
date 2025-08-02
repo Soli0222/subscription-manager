@@ -1,0 +1,27 @@
+name: Schema Sync Check
+
+on:
+  push:
+    paths:
+      - 'sql/schema.sql'
+      - 'helm/subscription-manager/templates/configmap.yaml'
+  pull_request:
+    paths:
+      - 'sql/schema.sql'
+      - 'helm/subscription-manager/templates/configmap.yaml'
+
+jobs:
+  check-schema-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check schema synchronization
+        run: |
+          # Make script executable (in case it's not already)
+          chmod +x scripts/check-schema-sync.sh
+          
+          # Run the schema sync check
+          ./scripts/check-schema-sync.sh
