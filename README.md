@@ -259,7 +259,64 @@ pnpm build  # TypeScriptコンパイル時に型チェック実行
 
 # Linting
 pnpm lint
+
+# テスト実行
+pnpm test
+
+# テスト（監視モード）
+pnpm test:watch
+
+# テストカバレッジ
+pnpm test:coverage
 ```
+
+## テスト
+
+このプロジェクトではJestを使用してテストを実装しています。
+
+### テスト構成
+
+- **単体テスト**: ユーティリティ関数とビジネスロジックの単体テスト
+- **バリデーションテスト**: Zodスキーマの検証テスト
+- **型テスト**: TypeScript型定義の検証テスト
+
+### テストファイル構成
+
+```
+src/__tests__/
+├── utils/              # ユーティリティ関数のテスト
+│   ├── convertToJpy.test.ts    # 為替変換関数のテスト
+│   └── className.test.ts       # CSSクラス結合関数のテスト
+├── validation/         # バリデーション関連のテスト
+│   └── subscription-schema.test.ts # サブスクリプションスキーマのテスト
+└── types/              # 型定義のテスト
+    └── index.test.ts           # TypeScript型の検証テスト
+```
+
+### テスト実行方法
+
+```bash
+# 全テスト実行
+pnpm test
+
+# 特定のテストファイル実行
+pnpm test src/__tests__/utils/convertToJpy.test.ts
+
+# 監視モードでテスト実行（ファイル変更時に自動実行）
+pnpm test:watch
+
+# カバレッジレポート付きテスト実行
+pnpm test:coverage
+```
+
+### テストの特徴
+
+1. **為替変換テスト**: USD→JPY変換ロジックの検証
+2. **バリデーションテスト**: ユーザー入力データの検証ルールテスト
+3. **型安全性テスト**: TypeScript型定義の妥当性確認
+4. **ユーティリティテスト**: 汎用関数の動作確認
+
+テストは継続的に拡張され、アプリケーションの品質を保証しています。
 
 ## プロジェクト構成
 
