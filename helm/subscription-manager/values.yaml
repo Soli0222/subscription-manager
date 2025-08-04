@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: subscription-manager
+  repository: ghcr.io/soli0222/subscription-manager
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "1.0.0"
 
 service:
   type: ClusterIP
