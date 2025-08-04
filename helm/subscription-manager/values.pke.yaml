@@ -4,14 +4,14 @@ ingress:
   annotations: 
     cert-manager.io/cluster-issuer: letsencrypt
   hosts:
-    - host: subscription-manager.tailscale.str08.net
+    - host: subscription-manager.str08.net
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: subscription-manager.tailscale.str08.net-dns01
+    - secretName: subscription-manager.str08.net-dns01
       hosts:
-        - subscription-manager.tailscale.str08.net
+        - subscription-manager.str08.net
 
 credentials:
   external: true
